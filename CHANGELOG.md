@@ -1,13 +1,7 @@
 # Changelog
 
-Das folgende Changelog-Format basiert auf [Keep a Changelog](http://keepachangelog.com/de/1.0.0/) und hält sich an die [Semantische Versionierung](http://semver.org/spec/v2.0.0.html).
+The changelog format follows these rules: [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and sticks to [semantic versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [0.0.1] - UNRELEASED
 ### Added
-- Hinzugefügt.
-
-### Changed
-- Geändert.
-
-### Fix
-- Gefixt.
+- _todo_

@@ -1,21 +1,22 @@
-A programm for ...
+A programm for calculating average expenses from a ledger journal.
 
 # Installation
 
-How to install it!
+Clone repo and maybe setup an alias to `python3 run.py`.
 
 # Usage
 
 Do these things:
 
-	Command
-	Command
-	Command
+	_todo_
+	_list_
 
 # To do
 
 - Code the programm!
+- Better README.md
+- Take out the trash!
 
 # Changelog
 
-Das Changelog gibt es [hier: CHANGELOG.md](CHANGELOG.md).
+The changelog is here [CHANGELOG.md](CHANGELOG.md).
