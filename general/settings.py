@@ -23,23 +23,41 @@ class Settings(object):
 
         self.args.add_argument(
             'file',
+            nargs='?',
             help=(
-                'a file'
+                'a ledger journal file'
             )
         )
 
         self.args.add_argument(
-            '-v',
-            '--verbose',
-            action='store_true',
-            help='verbose enabled'
+            '-e',
+            '--expense',
+            default=[],
+            action='append',
+            help='append ledger account name to the expense accounts array'
         )
 
         self.args.add_argument(
-            '-d',
-            '--default',
-            default=None,
-            help='default parameter'
+            '-i',
+            '--income',
+            default=[],
+            action='append',
+            help='append ledger account name to the income accounts array'
+        )
+
+        self.args.add_argument(
+            '-m',
+            '--months',
+            default=12,
+            type=int,
+            help='how much months should be used for average calculation?'
+        )
+
+        self.args.add_argument(
+            '-f',
+            '--full-name',
+            action='store_true',
+            help='do not use the top account as the account name, but the full name'
         )
 
         self.args = self.args.parse_args()

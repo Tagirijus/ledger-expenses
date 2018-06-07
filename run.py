@@ -11,7 +11,7 @@ from general.expenses import Expenses
 def main(settings):
     """Run the programm."""
     expenses = Expenses(settings)
-    expenses.showFile()
+    expenses.test()
 
 
 if __name__ == '__main__':
