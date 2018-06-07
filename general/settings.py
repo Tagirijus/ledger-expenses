@@ -23,8 +23,6 @@ class Settings(object):
 
         self.args.add_argument(
             'file',
-            nargs='?',
-            default=None,
             help=(
                 'a file'
             )
