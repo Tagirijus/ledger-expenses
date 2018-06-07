@@ -31,14 +31,15 @@ class Expenses(object):
     def show(self, color='white'):
         """Output the main results."""
         if self.yearly:
-            year_month = colored('year', color, attrs=['bold'])
+            what = colored('Average yearly income / expenses based on', color)
         else:
-            year_month = '{} {}'.format(
-                colored(self.months, color, attrs=['bold']),
-                colored('months', color)
-            )
+            what = colored('Average monthly income / expenses based on', color)
+        months = '{} {}'.format(
+            colored(self.months, color, attrs=['bold']),
+            colored('months', color)
+        )
         print()
-        print(colored('Average income / expenses per {}'.format(year_month), color))
+        print(colored('{} {}'.format(what, months), color))
         print()
         self.printAmounts('Income accounts', self.income_amounts, 'blue', color)
         print()
