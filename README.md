@@ -8,7 +8,7 @@ Clone repo and maybe setup an alias to `python3 run.py`.
 
 To let the programm calculate your monthly / yearly expenses (and income) you can start the programm with these parameter:
 
-| command | description |
+| parameter | description |
 | --- | --- |
 | **file** | your ledger journal file. leave blank, if you set up the LEDGER_FILE variable. |
 | **-e** / **--expense** | use multiple times to add each account describing your expenses. |
