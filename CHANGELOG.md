@@ -2,6 +2,10 @@
 
 The changelog format follows these rules: [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and sticks to [semantic versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.0.3] - UNRELEASED
+### Changed
+- Dates are now calculated by month only. The day was "to precise" and brought me not taht good results.
+
 ## [0.0.2] - 2018-06-06
 ### Changed
 - Output if it's yearly or monthly.

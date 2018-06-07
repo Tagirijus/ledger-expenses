@@ -170,10 +170,10 @@ class Expenses(object):
         the ledger parameter.
         """
         date_to = datetime.datetime.now()
-        date_to_str = date_to.strftime('%Y-%m-%d')
+        date_to_str = date_to.strftime('%Y-%m')
 
         date_from = date_to - relativedelta(months=self.months)
-        date_from_str = date_from.strftime('%Y-%m-%d')
+        date_from_str = date_from.strftime('%Y-%m')
 
         return '-p "from {} to {}"'.format(date_from_str, date_to_str)
 
