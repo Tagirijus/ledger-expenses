@@ -28,18 +28,42 @@ class Expenses(object):
         self.expense_amounts = {}
         self.getAmounts()
 
-    def show(self):
+    def show(self, color='white'):
         """Output the main results."""
-        self.printAmounts('Income accounts', self.income_amounts, 'blue')
+        if self.yearly:
+            year_month = colored('year', color, attrs=['bold'])
+        else:
+            year_month = '{} {}'.format(
+                colored(self.months, color, attrs=['bold']),
+                colored('months', color)
+            )
         print()
-        self.printAmounts('Expense accounts', self.expense_amounts, 'yellow')
+        print(colored('Average income / expenses per {}'.format(year_month), color))
+        print()
+        self.printAmounts('Income accounts', self.income_amounts, 'blue', color)
+        print()
+        self.printAmounts('Expense accounts', self.expense_amounts, 'yellow', color)
+        print()
+        print()
+        self.printBoth(color)
+        print()
 
-    def printAmounts(self, title, amounts_dict, color):
+    def printBoth(self, gui_color='white'):
+        """Print the income versus the expenses."""
+        income_total = sum(self.income_amounts.values())
+        expense_total = sum(self.expense_amounts.values())
+        total = income_total + expense_total
+        print('{} {}'.format(
+            colored('Total money flow:', gui_color),
+            self.colorAmount(total)
+        ))
+
+    def printAmounts(self, title, amounts_dict, color, gui_color='white'):
         """Print an amounts dict as a table."""
         print(
             tabulate(
                 self.prepareTable(amounts_dict, color),
-                headers=[colored(title, 'white'), colored('€', 'white')],
+                headers=[colored(title, gui_color), colored('€', gui_color)],
                 tablefmt='plain'
             )
         )
@@ -47,15 +71,19 @@ class Expenses(object):
     def prepareTable(self, amounts_dict, color):
         """Prepare the table according to the given amounts_dict."""
         output = []
-        for account in amounts_dict:
+        for account in sorted(amounts_dict):
             acc_str = colored(account, color)
             amount = self.colorAmount(amounts_dict[account])
             output += [[acc_str, amount]]
+        output += [[
+            colored('--- Total', color),
+            self.colorAmount(sum(amounts_dict.values()))
+        ]]
         return output
 
     def colorAmount(self, amount):
         """Depending on negative or positive, color the amount."""
-        if amount > 0:
+        if amount >= 0:
             return colored(str(amount), 'green')
         else:
             return colored(str(amount), 'red')
