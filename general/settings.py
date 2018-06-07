@@ -60,6 +60,13 @@ class Settings(object):
             help='do not use the top account as the account name, but the full name'
         )
 
+        self.args.add_argument(
+            '-y',
+            '--yearly',
+            action='store_true',
+            help='calculate yearly instead of monthly expenses / income'
+        )
+
         self.args = self.args.parse_args()
 
     def toJson(self, indent=2, ensure_ascii=False):

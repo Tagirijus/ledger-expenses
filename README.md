@@ -15,6 +15,11 @@ To let the programm calculate your monthly / yearly expenses (and income) you ca
 | **-i** / **--income** | same as for --expense, but for the income accounts. |
 | **-m** / **--months** | define how many months should be used for the average calculation. default is 12. |
 | **-f** / **--full-name** | won't change the account name to just the top name. default false. |
+| **-y** / **--yearly** | the programm now calculates the yearly instead of the monthly income / expenses. |
+
+# Future
+
+Maybe some day there will be a _python3 ledger module_ and I will embed this. The programm would be so much faster without the `os.popen` stuff.
 
 # Changelog
 
