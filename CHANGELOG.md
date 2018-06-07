@@ -5,6 +5,8 @@ The changelog format follows these rules: [Keep a Changelog](http://keepachangel
 ## [0.0.2] - UNRELEASED
 ### Changed
 - Output if it's yearly or monthly.
+- Income accounts now need two arguments: one for the account, one for the name.
+- Removed the `--full-text` argument.
 
 ## [0.0.1] - 2018-06-06
 ### Added

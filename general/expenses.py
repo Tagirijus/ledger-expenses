@@ -11,22 +11,37 @@ class Expenses(object):
     def __init__(
         self,
         ledger_file=None,
-        full_name=False,
         months=12,
         yearly=False,
         income_accounts=[],
         expense_accounts=[]
     ):
         self.ledger_file = ledger_file
-        self.full_name = full_name
         self.months = months
         self.yearly = yearly
 
-        self.income_accounts = income_accounts
-        self.expense_accounts = expense_accounts
+        self.income_accounts, self.income_accounts_name = (
+            self.interpreteAccounts(income_accounts)
+        )
+        self.expense_accounts, self.expense_accounts_name = (
+            self.interpreteAccounts(expense_accounts)
+        )
         self.income_amounts = {}
         self.expense_amounts = {}
         self.getAmounts()
+
+    def interpreteAccounts(self, accounts):
+        """
+        Returns a tuple with first value is a list of all account ledger-names
+        and the second is a dict with all the account ledger-names as keys
+        and the caption name as value.
+        """
+        acc = []
+        name = {}
+        for account in accounts:
+            acc += [account[0]]
+            name[account[0]] = account[1]
+        return (acc, name)
 
     def show(self, color='white'):
         """Output the main results."""
@@ -97,7 +112,7 @@ class Expenses(object):
     def getIncomeAmounts(self):
         """Gets the amounts for all income accounts."""
         for income_account in self.income_accounts:
-            income_account_name = self.getTopAccountName(income_account)
+            income_account_name = self.getCorrectAccountName(income_account)
             self.income_amounts[income_account_name] = (
                 self.getAmountForAccount(income_account)
             )
@@ -105,20 +120,27 @@ class Expenses(object):
     def getExpenseAmounts(self):
         """Gets the amounts for all expense accounts."""
         for expense_account in self.expense_accounts:
-            expense_account_name = self.getTopAccountName(expense_account)
+            expense_account_name = self.getCorrectAccountName(expense_account)
             self.expense_amounts[expense_account_name] = (
                 self.getAmountForAccount(expense_account)
             )
 
-    def getTopAccountName(self, account):
+    def getCorrectAccountName(self, account):
         """
-        Gets the top account name - basically the last element of
-        the :-seperated string.
+        Gets the correct account name depengin on the accounts_name dict.
+        If it's set to 'self' the account caption name will be the account itself.
         """
-        if not self.full_name:
-            seperated = str(account).split(':')
-            return seperated[-1]
-        else:
+        try:
+            if account in self.income_accounts_name:
+                name = self.income_accounts_name[account]
+            elif account in self.expense_accounts_name:
+                name = self.expense_accounts_name[account]
+            else:
+                name = account
+            if name.lower() == 'self':
+                name = account
+            return name
+        except Exception as e:
             return account
 
     def getAmountForAccount(self, account):

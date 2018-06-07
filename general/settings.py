@@ -33,16 +33,18 @@ class Settings(object):
             '-e',
             '--expense',
             default=[],
+            nargs=2,
             action='append',
-            help='append ledger account name to the expense accounts array'
+            help='append ledger account and its name to the expense accounts array'
         )
 
         self.args.add_argument(
             '-i',
             '--income',
             default=[],
+            nargs=2,
             action='append',
-            help='append ledger account name to the income accounts array'
+            help='append ledger account and its name to the income accounts array'
         )
 
         self.args.add_argument(
@@ -51,13 +53,6 @@ class Settings(object):
             default=12,
             type=int,
             help='how much months should be used for average calculation?'
-        )
-
-        self.args.add_argument(
-            '-f',
-            '--full-name',
-            action='store_true',
-            help='do not use the top account as the account name, but the full name'
         )
 
         self.args.add_argument(

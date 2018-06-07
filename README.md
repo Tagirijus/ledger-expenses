@@ -11,10 +11,9 @@ To let the programm calculate your monthly / yearly expenses (and income) you ca
 | parameter | description |
 | --- | --- |
 | **file** | your ledger journal file. leave blank, if you set up the LEDGER_FILE variable. |
-| **-e** / **--expense** | use multiple times to add each account describing your expenses. |
+| **-e** / **--expense** | use multiple times to add each account describing your expenses. input holds the account and its name for the ouput. |
 | **-i** / **--income** | same as for --expense, but for the income accounts. |
 | **-m** / **--months** | define how many months should be used for the average calculation. default is 12. |
-| **-f** / **--full-name** | won't change the account name to just the top name. default false. |
 | **-y** / **--yearly** | the programm now calculates the yearly instead of the monthly income / expenses. |
 
 # Future
