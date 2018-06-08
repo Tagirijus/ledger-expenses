@@ -15,6 +15,7 @@ To let the programm calculate your monthly / yearly expenses (and income) you ca
 | **-i** / **--income** | same as for --expense, but for the income accounts. |
 | **-m** / **--months** | define how many months should be used for the average calculation. default is 12. |
 | **-y** / **--yearly** | the programm now calculates the yearly instead of the monthly income / expenses. |
+| **-t** / **--time** | the program interpretes the journal as a time journal. |
 
 # Future
 

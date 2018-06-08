@@ -100,6 +100,13 @@ class Settings(object):
             help='replaces the automatic date caluclation with a "to YEAR-MONTH"'
         )
 
+        self.args.add_argument(
+            '-t',
+            '--time',
+            action='store_true',
+            help='if enabled, the amount will be interpreted as a time value'
+        )
+
         self.args = self.args.parse_args()
 
     def toJson(self, indent=2, ensure_ascii=False):

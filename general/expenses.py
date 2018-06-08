@@ -18,12 +18,14 @@ class Expenses(object):
         add_income_accounts=[],
         add_expense_accounts=[],
         period_from=False,
-        period_to=False
+        period_to=False,
+        time=False
     ):
         self.ledger_file = ledger_file
         self.months = months
         self.period, self.months = self.interpretePeriods(months, period_from, period_to)
         self.yearly = yearly
+        self.time = time
 
         self.income_accounts, self.income_accounts_name = (
             self.interpreteAccounts(income_accounts)
@@ -57,9 +59,15 @@ class Expenses(object):
     def show(self, color='white'):
         """Output the main results."""
         if self.yearly:
-            what = colored('Average yearly income / expenses based on', color)
+            if self.time:
+                what = colored('Average yearly worktime (hours) based on', color)
+            else:
+                what = colored('Average yearly income / expenses based on', color)
         else:
-            what = colored('Average monthly income / expenses based on', color)
+            if self.time:
+                what = colored('Average monthly worktime (hours) based on', color)
+            else:
+                what = colored('Average monthly income / expenses based on', color)
         months = '{} {}'.format(
             colored(self.months, color, attrs=['bold']),
             colored('months', color)
@@ -70,9 +78,10 @@ class Expenses(object):
         self.printAmounts('Income accounts', self.income_amounts, 'blue', color)
         print()
         self.printAmounts('Expense accounts', self.expense_amounts, 'yellow', color)
-        print()
-        print()
-        self.printBoth(color)
+        if not self.time:
+            print()
+            print()
+            self.printBoth(color)
         print()
 
     def printBoth(self, gui_color='white'):
@@ -97,6 +106,13 @@ class Expenses(object):
 
     def prepareTable(self, amounts_dict, color):
         """Prepare the table according to the given amounts_dict."""
+        if self.time:
+            return self.prepareTableTime(amounts_dict, color)
+        else:
+            return self.prepareTableMoney(amounts_dict, color)
+
+    def prepareTableMoney(self, amounts_dict, color):
+        """Prepare the table for the money amounts."""
         output = []
         for account in sorted(amounts_dict):
             acc_str = colored(account, color)
@@ -108,12 +124,28 @@ class Expenses(object):
         ]]
         return output
 
+    def prepareTableTime(self, amounts_dict, color):
+        """Prepare the table for the time amounts."""
+        output = []
+        for account in sorted(amounts_dict):
+            acc_str = colored(account, color)
+            amount = self.colorAmount(self.toTime(amounts_dict[account]))
+            output += [[acc_str, amount]]
+        output += [[
+            colored('--- Total', color),
+            self.colorAmount(self.toTime(sum(amounts_dict.values())))
+        ]]
+        return output
+
     def colorAmount(self, amount):
         """Depending on negative or positive, color the amount."""
-        if amount >= 0:
+        if self.time:
             return colored(str(amount), 'green')
         else:
-            return colored(str(amount), 'red')
+            if amount >= 0:
+                return colored(str(amount), 'green')
+            else:
+                return colored(str(amount), 'red')
 
     def getAmounts(self):
         """Get income and expenses amounts."""
@@ -172,17 +204,42 @@ class Expenses(object):
 
     def getAmountForAccount(self, account):
         """Gets the amount of the given account."""
+        if self.time:
+            return self.getAmountForAccountTime(account)
+        else:
+            return self.getAmountForAccountMoney(account)
+
+    def getAmountForAccountMoney(self, account):
+        """Gets the MONEY amount of the given account."""
         ledger_file = self.prepareLedgerFile()
         ledger_date = self.prepareLedgerDate()
         ledger_command = 'ledger {}{} --collapse b {}'.format(
             ledger_file, ledger_date, account
         )
-        result = self.prepareAmount(os.popen(ledger_command).readline().strip())
+        result = self.prepareTimeAmount(os.popen(ledger_command).readline().strip())
         if self.yearly:
             result = round((result / self.months) * 12, 2) * -1
         else:
             result = round(result / self.months, 2) * -1
         return result
+
+    def getAmountForAccountTime(self, account):
+        """Gets the TIME amount of the given account."""
+        ledger_file = self.prepareLedgerFile()
+        ledger_date = self.prepareLedgerDate()
+        ledger_command = 'ledger {}{} --collapse b {} --format "%(total)\n"'.format(
+            ledger_file, ledger_date, account
+        )
+        result = self.prepareTimeAmount(os.popen(ledger_command).readline().strip())
+        if self.yearly:
+            result = round((result / self.months) * 12, 2) * -1
+        else:
+            result = round(result / self.months, 2) * -1
+        return result
+
+    def toTime(self, amount):
+        """Convert to readable time format 'HH:MM h'."""
+        return round(amount / 3600, 2)
 
     def prepareLedgerFile(self):
         """Outputs the ledger file, if given."""
@@ -214,6 +271,14 @@ class Expenses(object):
             amount_str = amount_str[2:]
             amount_str = amount_str[:amount_str.find(' ')]
             amount_str = amount_str.replace('.', '').replace(',', '.')
+            return Decimal(amount_str)
+        except Exception:
+            return Decimal(0)
+
+    def prepareTimeAmount(self, amount_str):
+        """Convert the given ledger output amount string to a decimal."""
+        try:
+            amount_str = amount_str[:amount_str.find('s')]
             return Decimal(amount_str)
         except Exception:
             return Decimal(0)

@@ -13,7 +13,8 @@ def main(settings):
     args = settings.args
     expenses = Expenses(
         args.file, args.months, args.yearly, args.income, args.expense,
-        args.add_income, args.add_expense, args.period_from, args.period_to
+        args.add_income, args.add_expense, args.period_from, args.period_to,
+        args.time
     )
     expenses.show()
 
