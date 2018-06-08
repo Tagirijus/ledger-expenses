@@ -86,6 +86,20 @@ class Settings(object):
             )
         )
 
+        self.args.add_argument(
+            '-pf',
+            '--period-from',
+            default=False,
+            help='replaces the automatic date caluclation with a "from YEAR-MONTH"'
+        )
+
+        self.args.add_argument(
+            '-pt',
+            '--period-to',
+            default=False,
+            help='replaces the automatic date caluclation with a "to YEAR-MONTH"'
+        )
+
         self.args = self.args.parse_args()
 
     def toJson(self, indent=2, ensure_ascii=False):

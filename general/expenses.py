@@ -16,10 +16,13 @@ class Expenses(object):
         income_accounts=[],
         expense_accounts=[],
         add_income_accounts=[],
-        add_expense_accounts=[]
+        add_expense_accounts=[],
+        period_from=False,
+        period_to=False
     ):
         self.ledger_file = ledger_file
         self.months = months
+        self.period, self.months = self.interpretePeriods(months, period_from, period_to)
         self.yearly = yearly
 
         self.income_accounts, self.income_accounts_name = (
@@ -193,13 +196,17 @@ class Expenses(object):
         Prepare the ledger date according to the months and output
         the ledger parameter.
         """
-        date_to = datetime.datetime.now()
-        date_to_str = date_to.strftime('%Y-%m')
+        if self.period is False:
+            date_to = datetime.datetime.now()
+            date_to_str = date_to.strftime('%Y-%m')
 
-        date_from = date_to - relativedelta(months=self.months)
-        date_from_str = date_from.strftime('%Y-%m')
+            date_from = date_to - relativedelta(months=self.months)
+            date_from_str = date_from.strftime('%Y-%m')
 
-        return '-p "from {} to {}"'.format(date_from_str, date_to_str)
+            return '-p "from {} to {}"'.format(date_from_str, date_to_str)
+
+        else:
+            return self.period
 
     def prepareAmount(self, amount_str):
         """Convert the given ledger output amount string to a decimal."""
@@ -217,3 +224,65 @@ class Expenses(object):
             return Decimal(amount)
         except Exception as e:
             return Decimal(0)
+
+    def interpretePeriods(self, months, period_from, period_to):
+        """
+        Calculate months from given parameter and handle period ledger string.
+        Returns a tuple with (bool|ledger-period-string, months).
+        """
+        if period_from is False and period_to is False:
+            return (False, months)
+
+        period_from = self.interpreteDate(period_from)
+        period_to = self.interpreteDate(period_to)
+
+        period_from, period_to = self.normalizePeriods(period_from, period_to)
+        period_string = self.generatePeriodString(period_from, period_to)
+        months = self.calculateMonths(period_from, period_to)
+
+        return (period_string, months)
+
+    def calculateMonths(self, period_from, period_to):
+        """Calculate the months from two given dates.."""
+        if period_from is False or period_to is False:
+            return 12
+
+        delta = relativedelta(period_to, period_from)
+        return abs((delta.years * 12) + delta.months)
+
+    def normalizePeriods(self, period_from, period_to):
+        """
+        Normlize the periods so that teh programm can work with them.
+        Basically it tries to generate the other period with self.months months
+        in difference, if only one period date is given.
+        """
+        if period_from is False and period_to is False:
+            return (False, False)
+
+        elif period_from is False and period_to is not False:
+            period_from = period_to - relativedelta(months=self.months)
+
+        elif period_from is not False and period_to is False:
+            period_to = period_from + relativedelta(months=self.months)
+
+        return (period_from, period_to)
+
+    def generatePeriodString(self, period_from, period_to):
+        """Generate the ledger period string from two given dates."""
+        if period_from is False and period_to is False:
+            return False
+
+        str_from = period_from.strftime('%Y-%m')
+        str_to = period_to.strftime('%Y-%m')
+
+        return '-p "from {} to {}"'.format(str_from, str_to)
+
+    def interpreteDate(self, date):
+        """Interprete given date and return datetime or bool."""
+        if date is False:
+            return False
+
+        try:
+            return datetime.datetime.strptime(date, '%Y-%m')
+        except Exception as e:
+            return False
