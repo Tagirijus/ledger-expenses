@@ -6,6 +6,9 @@ The changelog format follows these rules: [Keep a Changelog](http://keepachangel
 ### Added
 - Time journals can now also be analysed.
 
+### Changed
+- Only show income or expense, if there are accounts.
+
 ## [0.0.3] - 2018-06-08
 ### Added
 - It is now possible to add additional accounts with amount, which are not in the ledger journal.

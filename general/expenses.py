@@ -74,10 +74,12 @@ class Expenses(object):
         )
         print()
         print(colored('{} {}'.format(what, months), color))
-        print()
-        self.printAmounts('Income accounts', self.income_amounts, 'blue', color)
-        print()
-        self.printAmounts('Expense accounts', self.expense_amounts, 'yellow', color)
+        if len(self.income_accounts) > 0:
+            print()
+            self.printAmounts('Income accounts', self.income_amounts, 'blue', color)
+        if len(self.expense_accounts) > 0:
+            print()
+            self.printAmounts('Expense accounts', self.expense_amounts, 'yellow', color)
         if not self.time:
             print()
             print()
