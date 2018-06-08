@@ -14,7 +14,9 @@ class Expenses(object):
         months=12,
         yearly=False,
         income_accounts=[],
-        expense_accounts=[]
+        expense_accounts=[],
+        add_income_accounts=[],
+        add_expense_accounts=[]
     ):
         self.ledger_file = ledger_file
         self.months = months
@@ -25,6 +27,12 @@ class Expenses(object):
         )
         self.expense_accounts, self.expense_accounts_name = (
             self.interpreteAccounts(expense_accounts)
+        )
+        null, self.add_income_accounts = (
+            self.interpreteAccounts(add_income_accounts)
+        )
+        null, self.add_expense_accounts = (
+            self.interpreteAccounts(add_expense_accounts)
         )
         self.income_amounts = {}
         self.expense_amounts = {}
@@ -107,7 +115,9 @@ class Expenses(object):
     def getAmounts(self):
         """Get income and expenses amounts."""
         self.getIncomeAmounts()
+        self.getAddIncomeAmounts()
         self.getExpenseAmounts()
+        self.getAddExpenseAmounts()
 
     def getIncomeAmounts(self):
         """Gets the amounts for all income accounts."""
@@ -117,12 +127,26 @@ class Expenses(object):
                 self.getAmountForAccount(income_account)
             )
 
+    def getAddIncomeAmounts(self):
+        """Gets the amounts of the additional income accounts."""
+        for add_income_account in self.add_income_accounts:
+            self.income_amounts[add_income_account] = (
+                self.prepareAddAmount(self.add_income_accounts[add_income_account])
+            )
+
     def getExpenseAmounts(self):
         """Gets the amounts for all expense accounts."""
         for expense_account in self.expense_accounts:
             expense_account_name = self.getCorrectAccountName(expense_account)
             self.expense_amounts[expense_account_name] = (
                 self.getAmountForAccount(expense_account)
+            )
+
+    def getAddExpenseAmounts(self):
+        """Gets the amounts of the additional expense accounts."""
+        for add_expense_account in self.add_expense_accounts:
+            self.expense_amounts[add_expense_account] = (
+                self.prepareAddAmount(self.add_expense_accounts[add_expense_account])
             )
 
     def getCorrectAccountName(self, account):
@@ -185,4 +209,11 @@ class Expenses(object):
             amount_str = amount_str.replace('.', '').replace(',', '.')
             return Decimal(amount_str)
         except Exception:
+            return Decimal(0)
+
+    def prepareAddAmount(self, amount):
+        """Convert given parameter add_account amount to Decimal, if possible."""
+        try:
+            return Decimal(amount)
+        except Exception as e:
             return Decimal(0)

@@ -62,6 +62,30 @@ class Settings(object):
             help='calculate yearly instead of monthly expenses / income'
         )
 
+        self.args.add_argument(
+            '-ai',
+            '--add-income',
+            default=[],
+            nargs=2,
+            action='append',
+            help=(
+                'append additional account with name and amount as '
+                'an additional income account'
+            )
+        )
+
+        self.args.add_argument(
+            '-ae',
+            '--add-expense',
+            default=[],
+            nargs=2,
+            action='append',
+            help=(
+                'append additional account with name and amount as '
+                'an additional expense account'
+            )
+        )
+
         self.args = self.args.parse_args()
 
     def toJson(self, indent=2, ensure_ascii=False):

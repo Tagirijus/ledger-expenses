@@ -12,7 +12,8 @@ def main(settings):
     """Run the programm."""
     args = settings.args
     expenses = Expenses(
-        args.file, args.months, args.yearly, args.income, args.expense
+        args.file, args.months, args.yearly, args.income, args.expense,
+        args.add_income, args.add_expense
     )
     expenses.show()
 

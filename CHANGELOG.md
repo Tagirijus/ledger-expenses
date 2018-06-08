@@ -3,6 +3,9 @@
 The changelog format follows these rules: [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and sticks to [semantic versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [0.0.3] - UNRELEASED
+### Added
+- It is now possible to add additional accounts with amount, which are not in the ledger journal.
+
 ### Changed
 - Dates are now calculated by month only. The day was "to precise" and brought me not taht good results.
 
