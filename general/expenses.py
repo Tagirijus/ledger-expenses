@@ -218,7 +218,7 @@ class Expenses(object):
         ledger_command = 'ledger {}{} --collapse b {}'.format(
             ledger_file, ledger_date, account
         )
-        result = self.prepareTimeAmount(os.popen(ledger_command).readline().strip())
+        result = self.prepareAmount(os.popen(ledger_command).readline().strip())
         if self.yearly:
             result = round((result / self.months) * 12, 2) * -1
         else:
