@@ -5,6 +5,7 @@ The changelog format follows these rules: [Keep a Changelog](http://keepachangel
 ## [0.0.4] - UNRELEASED
 ### Added
 - Time journals can now also be analysed.
+- If 'Total' is given as an account name, its account will be used for total.
 
 ### Changed
 - Only show income or expense, if there are accounts.

@@ -107,37 +107,35 @@ class Expenses(object):
         )
 
     def prepareTable(self, amounts_dict, color):
-        """Prepare the table according to the given amounts_dict."""
-        if self.time:
-            return self.prepareTableTime(amounts_dict, color)
-        else:
-            return self.prepareTableMoney(amounts_dict, color)
-
-    def prepareTableMoney(self, amounts_dict, color):
         """Prepare the table for the money amounts."""
         output = []
         for account in sorted(amounts_dict):
+            if account == 'Total':
+                continue
             acc_str = colored(account, color)
-            amount = self.colorAmount(amounts_dict[account])
+            if self.time:
+                amount = self.colorAmount(self.toTime(amounts_dict[account]))
+            else:
+                amount = self.colorAmount(amounts_dict[account])
             output += [[acc_str, amount]]
+        total = self.prepareTableTotal(amounts_dict)
         output += [[
             colored('--- Total', color),
-            self.colorAmount(sum(amounts_dict.values()))
+            self.colorAmount(total)
         ]]
         return output
 
-    def prepareTableTime(self, amounts_dict, color):
-        """Prepare the table for the time amounts."""
-        output = []
-        for account in sorted(amounts_dict):
-            acc_str = colored(account, color)
-            amount = self.colorAmount(self.toTime(amounts_dict[account]))
-            output += [[acc_str, amount]]
-        output += [[
-            colored('--- Total', color),
-            self.colorAmount(self.toTime(sum(amounts_dict.values())))
-        ]]
-        return output
+    def prepareTableTotal(self, amounts_dict):
+        """Check if 'Total' exists in the dict, otherwise sum the values."""
+        if 'Total' in amounts_dict:
+            total = amounts_dict['Total']
+        else:
+            total = sum(amounts_dict.values())
+
+        if self.time:
+            total = self.toTime(total)
+
+        return total
 
     def colorAmount(self, amount):
         """Depending on negative or positive, color the amount."""
