@@ -2,7 +2,7 @@
 
 The changelog format follows these rules: [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and sticks to [semantic versioning](http://semver.org/spec/v2.0.0.html).
 
-## [0.0.4] - UNRELEASED
+## [0.0.4] - 2018-06-10
 ### Added
 - Time journals can now also be analysed.
 - If 'Total' is given as an account name, its account will be used for total.
@@ -10,6 +10,7 @@ The changelog format follows these rules: [Keep a Changelog](http://keepachangel
 ### Changed
 - Only show income or expense, if there are accounts.
 - Put many methods in differnet modules for a better structure.
+- Time-Output beautified.
 
 ## [0.0.3] - 2018-06-08
 ### Added

@@ -59,5 +59,8 @@ def prepareAddAmount(amount):
 
 
 def toTime(amount):
-    """Convert from seconds to hours."""
-    return round(amount / 3600, 2)
+    """Convert from seconds to 'HH:MM h' format."""
+    decimal_time = round(amount / 3600, 2)
+    hours, minutes = divmod(decimal_time, 1)
+    minutes = int(minutes * 60)
+    return '{}:{:02} h'.format(hours, minutes)
