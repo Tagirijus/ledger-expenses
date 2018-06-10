@@ -1,6 +1,9 @@
 import datetime
 from dateutil.relativedelta import relativedelta
 from decimal import Decimal
+from general import date_helper
+from general import ledger_helper
+from general import helper
 import os
 from tabulate import tabulate
 from termcolor import colored
@@ -43,6 +46,25 @@ class Expenses(object):
         self.expense_amounts = {}
         self.getAmounts()
 
+    def interpretePeriods(self, months, period_from, period_to):
+        """
+        Calculate months from given parameter and handle period ledger string.
+        Returns a tuple with (bool|ledger-period-string, months).
+        """
+        if period_from is False and period_to is False:
+            return (False, months)
+
+        period_from = date_helper.interpreteDate(period_from)
+        period_to = date_helper.interpreteDate(period_to)
+
+        period_from, period_to = date_helper.normalizePeriods(
+            self.months, period_from, period_to
+        )
+        period_string = ledger_helper.generatePeriodString(period_from, period_to)
+        months = date_helper.calculateMonths(period_from, period_to)
+
+        return (period_string, months)
+
     def interpreteAccounts(self, accounts):
         """
         Returns a tuple with first value is a list of all account ledger-names
@@ -55,6 +77,82 @@ class Expenses(object):
             acc += [account[0]]
             name[account[0]] = account[1]
         return (acc, name)
+
+    def getAmounts(self):
+        """Get income and expenses amounts."""
+        self.getIncomeAmounts()
+        self.getAddIncomeAmounts()
+        self.getExpenseAmounts()
+        self.getAddExpenseAmounts()
+
+    def getIncomeAmounts(self):
+        """Gets the amounts for all income accounts."""
+        for income_account in self.income_accounts:
+            income_account_name = helper.getCorrectAccountName(
+                self.income_accounts_name, income_account
+            )
+            self.income_amounts[income_account_name] = (
+                self.getAmountForAccount(income_account)
+            )
+
+    def getAddIncomeAmounts(self):
+        """Gets the amounts of the additional income accounts."""
+        for add_income_account in self.add_income_accounts:
+            self.income_amounts[add_income_account] = (
+                helper.prepareAddAmount(self.add_income_accounts[add_income_account])
+            )
+
+    def getExpenseAmounts(self):
+        """Gets the amounts for all expense accounts."""
+        for expense_account in self.expense_accounts:
+            expense_account_name = helper.getCorrectAccountName(
+                self.expense_accounts_name, expense_account
+            )
+            self.expense_amounts[expense_account_name] = (
+                self.getAmountForAccount(expense_account)
+            )
+
+    def getAddExpenseAmounts(self):
+        """Gets the amounts of the additional expense accounts."""
+        for add_expense_account in self.add_expense_accounts:
+            self.expense_amounts[add_expense_account] = (
+                helper.prepareAddAmount(self.add_expense_accounts[add_expense_account])
+            )
+
+    def getAmountForAccount(self, account):
+        """Gets the amount of the given account."""
+        if self.time:
+            return self.getAmountForTimeAccount(account)
+        else:
+            return self.getAmountForMoneyAccount(account)
+
+    def getAmountForMoneyAccount(self, account):
+        """Gets the MONEY amount of the given account."""
+        ledger_file = ledger_helper.prepareLedgerFile(self.ledger_file)
+        ledger_date = ledger_helper.prepareLedgerDate(self.period, self.months)
+        ledger_command = 'ledger {}{} --collapse b {}'.format(
+            ledger_file, ledger_date, account
+        )
+        result = helper.prepareMoneyAmount(os.popen(ledger_command).readline().strip())
+        if self.yearly:
+            result = round((result / self.months) * 12, 2) * -1
+        else:
+            result = round(result / self.months, 2) * -1
+        return result
+
+    def getAmountForTimeAccount(self, account):
+        """Gets the TIME amount of the given account."""
+        ledger_file = ledger_helper.prepareLedgerFile(self.ledger_file)
+        ledger_date = ledger_helper.prepareLedgerDate(self.period, self.months)
+        ledger_command = 'ledger {}{} --collapse b {} --format "%(total)\n"'.format(
+            ledger_file, ledger_date, account
+        )
+        result = helper.prepareTimeAmount(os.popen(ledger_command).readline().strip())
+        if self.yearly:
+            result = round((result / self.months) * 12, 2)
+        else:
+            result = round(result / self.months, 2)
+        return result
 
     def show(self, color='white'):
         """Output the main results."""
@@ -93,7 +191,7 @@ class Expenses(object):
         total = income_total + expense_total
         print('{} {}'.format(
             colored('Total money flow:', gui_color),
-            self.colorAmount(total)
+            helper.colorAmount(self.time, total)
         ))
 
     def printAmounts(self, title, amounts_dict, color, gui_color='white'):
@@ -114,14 +212,18 @@ class Expenses(object):
                 continue
             acc_str = colored(account, color)
             if self.time:
-                amount = self.colorAmount(self.toTime(amounts_dict[account]))
+                amount = helper.colorAmount(
+                    self.time, helper.toTime(amounts_dict[account])
+                )
             else:
-                amount = self.colorAmount(amounts_dict[account])
+                amount = helper.colorAmount(
+                    self.time, amounts_dict[account]
+                )
             output += [[acc_str, amount]]
         total = self.prepareTableTotal(amounts_dict)
         output += [[
             colored('--- Total', color),
-            self.colorAmount(total)
+            helper.colorAmount(self.time, total)
         ]]
         return output
 
@@ -133,221 +235,6 @@ class Expenses(object):
             total = sum(amounts_dict.values())
 
         if self.time:
-            total = self.toTime(total)
+            total = helper.toTime(total)
 
         return total
-
-    def colorAmount(self, amount):
-        """Depending on negative or positive, color the amount."""
-        if self.time:
-            return colored(str(amount), 'green')
-        else:
-            if amount >= 0:
-                return colored(str(amount), 'green')
-            else:
-                return colored(str(amount), 'red')
-
-    def getAmounts(self):
-        """Get income and expenses amounts."""
-        self.getIncomeAmounts()
-        self.getAddIncomeAmounts()
-        self.getExpenseAmounts()
-        self.getAddExpenseAmounts()
-
-    def getIncomeAmounts(self):
-        """Gets the amounts for all income accounts."""
-        for income_account in self.income_accounts:
-            income_account_name = self.getCorrectAccountName(income_account)
-            self.income_amounts[income_account_name] = (
-                self.getAmountForAccount(income_account)
-            )
-
-    def getAddIncomeAmounts(self):
-        """Gets the amounts of the additional income accounts."""
-        for add_income_account in self.add_income_accounts:
-            self.income_amounts[add_income_account] = (
-                self.prepareAddAmount(self.add_income_accounts[add_income_account])
-            )
-
-    def getExpenseAmounts(self):
-        """Gets the amounts for all expense accounts."""
-        for expense_account in self.expense_accounts:
-            expense_account_name = self.getCorrectAccountName(expense_account)
-            self.expense_amounts[expense_account_name] = (
-                self.getAmountForAccount(expense_account)
-            )
-
-    def getAddExpenseAmounts(self):
-        """Gets the amounts of the additional expense accounts."""
-        for add_expense_account in self.add_expense_accounts:
-            self.expense_amounts[add_expense_account] = (
-                self.prepareAddAmount(self.add_expense_accounts[add_expense_account])
-            )
-
-    def getCorrectAccountName(self, account):
-        """
-        Gets the correct account name depengin on the accounts_name dict.
-        If it's set to 'self' the account caption name will be the account itself.
-        """
-        try:
-            if account in self.income_accounts_name:
-                name = self.income_accounts_name[account]
-            elif account in self.expense_accounts_name:
-                name = self.expense_accounts_name[account]
-            else:
-                name = account
-            if name.lower() == 'self':
-                name = account
-            return name
-        except Exception as e:
-            return account
-
-    def getAmountForAccount(self, account):
-        """Gets the amount of the given account."""
-        if self.time:
-            return self.getAmountForAccountTime(account)
-        else:
-            return self.getAmountForAccountMoney(account)
-
-    def getAmountForAccountMoney(self, account):
-        """Gets the MONEY amount of the given account."""
-        ledger_file = self.prepareLedgerFile()
-        ledger_date = self.prepareLedgerDate()
-        ledger_command = 'ledger {}{} --collapse b {}'.format(
-            ledger_file, ledger_date, account
-        )
-        result = self.prepareAmount(os.popen(ledger_command).readline().strip())
-        if self.yearly:
-            result = round((result / self.months) * 12, 2) * -1
-        else:
-            result = round(result / self.months, 2) * -1
-        return result
-
-    def getAmountForAccountTime(self, account):
-        """Gets the TIME amount of the given account."""
-        ledger_file = self.prepareLedgerFile()
-        ledger_date = self.prepareLedgerDate()
-        ledger_command = 'ledger {}{} --collapse b {} --format "%(total)\n"'.format(
-            ledger_file, ledger_date, account
-        )
-        result = self.prepareTimeAmount(os.popen(ledger_command).readline().strip())
-        if self.yearly:
-            result = round((result / self.months) * 12, 2) * -1
-        else:
-            result = round(result / self.months, 2) * -1
-        return result
-
-    def toTime(self, amount):
-        """Convert to readable time format 'HH:MM h'."""
-        return round(amount / 3600, 2)
-
-    def prepareLedgerFile(self):
-        """Outputs the ledger file, if given."""
-        if self.ledger_file is not None:
-            return '-f {} '.format(self.ledger_file)
-        else:
-            return ''
-
-    def prepareLedgerDate(self):
-        """
-        Prepare the ledger date according to the months and output
-        the ledger parameter.
-        """
-        if self.period is False:
-            date_to = datetime.datetime.now()
-            date_to_str = date_to.strftime('%Y-%m')
-
-            date_from = date_to - relativedelta(months=self.months)
-            date_from_str = date_from.strftime('%Y-%m')
-
-            return '-p "from {} to {}"'.format(date_from_str, date_to_str)
-
-        else:
-            return self.period
-
-    def prepareAmount(self, amount_str):
-        """Convert the given ledger output amount string to a decimal."""
-        try:
-            amount_str = amount_str[2:]
-            amount_str = amount_str[:amount_str.find(' ')]
-            amount_str = amount_str.replace('.', '').replace(',', '.')
-            return Decimal(amount_str)
-        except Exception:
-            return Decimal(0)
-
-    def prepareTimeAmount(self, amount_str):
-        """Convert the given ledger output amount string to a decimal."""
-        try:
-            amount_str = amount_str[:amount_str.find('s')]
-            return Decimal(amount_str)
-        except Exception:
-            return Decimal(0)
-
-    def prepareAddAmount(self, amount):
-        """Convert given parameter add_account amount to Decimal, if possible."""
-        try:
-            return Decimal(amount)
-        except Exception as e:
-            return Decimal(0)
-
-    def interpretePeriods(self, months, period_from, period_to):
-        """
-        Calculate months from given parameter and handle period ledger string.
-        Returns a tuple with (bool|ledger-period-string, months).
-        """
-        if period_from is False and period_to is False:
-            return (False, months)
-
-        period_from = self.interpreteDate(period_from)
-        period_to = self.interpreteDate(period_to)
-
-        period_from, period_to = self.normalizePeriods(period_from, period_to)
-        period_string = self.generatePeriodString(period_from, period_to)
-        months = self.calculateMonths(period_from, period_to)
-
-        return (period_string, months)
-
-    def calculateMonths(self, period_from, period_to):
-        """Calculate the months from two given dates.."""
-        if period_from is False or period_to is False:
-            return 12
-
-        delta = relativedelta(period_to, period_from)
-        return abs((delta.years * 12) + delta.months)
-
-    def normalizePeriods(self, period_from, period_to):
-        """
-        Normlize the periods so that teh programm can work with them.
-        Basically it tries to generate the other period with self.months months
-        in difference, if only one period date is given.
-        """
-        if period_from is False and period_to is False:
-            return (False, False)
-
-        elif period_from is False and period_to is not False:
-            period_from = period_to - relativedelta(months=self.months)
-
-        elif period_from is not False and period_to is False:
-            period_to = period_from + relativedelta(months=self.months)
-
-        return (period_from, period_to)
-
-    def generatePeriodString(self, period_from, period_to):
-        """Generate the ledger period string from two given dates."""
-        if period_from is False and period_to is False:
-            return False
-
-        str_from = period_from.strftime('%Y-%m')
-        str_to = period_to.strftime('%Y-%m')
-
-        return '-p "from {} to {}"'.format(str_from, str_to)
-
-    def interpreteDate(self, date):
-        """Interprete given date and return datetime or bool."""
-        if date is False:
-            return False
-
-        try:
-            return datetime.datetime.strptime(date, '%Y-%m')
-        except Exception as e:
-            return False

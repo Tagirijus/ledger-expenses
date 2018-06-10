@@ -9,6 +9,7 @@ The changelog format follows these rules: [Keep a Changelog](http://keepachangel
 
 ### Changed
 - Only show income or expense, if there are accounts.
+- Put many methods in differnet modules for a better structure.
 
 ## [0.0.3] - 2018-06-08
 ### Added
