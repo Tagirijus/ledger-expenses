@@ -22,13 +22,15 @@ class Expenses(object):
         add_expense_accounts=[],
         period_from=False,
         period_to=False,
-        time=False
+        time=False,
+        no_color=False
     ):
         self.ledger_file = ledger_file
         self.months = months
         self.period, self.months = self.interpretePeriods(months, period_from, period_to)
         self.yearly = yearly
         self.time = time
+        self.no_color = no_color
 
         self.income_accounts, self.income_accounts_name = (
             self.interpreteAccounts(income_accounts)
@@ -158,20 +160,43 @@ class Expenses(object):
         """Output the main results."""
         if self.yearly:
             if self.time:
-                what = colored('Average yearly worktime (hours) based on', color)
+                what = (
+                    'Average yearly worktime (hours) based on'
+                    if self.no_color else
+                    colored('Average yearly worktime (hours) based on', color)
+                )
             else:
-                what = colored('Average yearly income / expenses based on', color)
+                what = (
+                    'Average yearly income / expenses based on'
+                    if self.no_color else
+                    colored('Average yearly income / expenses based on', color)
+                )
         else:
             if self.time:
-                what = colored('Average monthly worktime (hours) based on', color)
+                what = (
+                    'Average monthly worktime (hours) based on'
+                    if self.no_color else
+                    colored('Average monthly worktime (hours) based on', color)
+                )
             else:
-                what = colored('Average monthly income / expenses based on', color)
-        months = '{} {}'.format(
-            colored(self.months, color, attrs=['bold']),
-            colored('months', color)
+                what = (
+                    'Average monthly income / expenses based on'
+                    if self.no_color else
+                    colored('Average monthly income / expenses based on', color)
+                )
+        months = (
+            '{} months'.format(self.months)
+            if self.no_color else
+            '{} {}'.format(
+                colored(self.months, color, attrs=['bold']),
+                colored('months', color)
+            )
         )
         print()
-        print(colored('{} {}'.format(what, months), color))
+        if self.no_color:
+            print('{} {}'.format(what, months))
+        else:
+            print(colored('{} {}'.format(what, months), color))
         if len(self.income_accounts) > 0:
             print()
             self.printAmounts('Income accounts', self.income_amounts, 'blue', color)
@@ -189,20 +214,35 @@ class Expenses(object):
         income_total = sum(self.income_amounts.values())
         expense_total = sum(self.expense_amounts.values())
         total = income_total + expense_total
-        print('{} {}'.format(
-            colored('Total money flow:', gui_color),
-            helper.colorAmount(self.time, total)
-        ))
+        if self.no_color:
+            print('{} {}'.format(
+                'Total money flow:',
+                helper.colorAmount(self.time, total, self.no_color)
+            ))
+        else:
+            print('{} {}'.format(
+                colored('Total money flow:', gui_color),
+                helper.colorAmount(self.time, total, self.no_color)
+            ))
 
     def printAmounts(self, title, amounts_dict, color, gui_color='white'):
         """Print an amounts dict as a table."""
-        print(
-            tabulate(
-                self.prepareTable(amounts_dict, color),
-                headers=[colored(title, gui_color), colored('€', gui_color)],
-                tablefmt='plain'
+        if self.no_color:
+            print(
+                tabulate(
+                    self.prepareTable(amounts_dict, color),
+                    headers=[title, '€'],
+                    tablefmt='plain'
+                )
             )
-        )
+        else:
+            print(
+                tabulate(
+                    self.prepareTable(amounts_dict, color),
+                    headers=[colored(title, gui_color), colored('€', gui_color)],
+                    tablefmt='plain'
+                )
+            )
 
     def prepareTable(self, amounts_dict, color):
         """Prepare the table for the money amounts."""
@@ -210,21 +250,32 @@ class Expenses(object):
         for account in sorted(amounts_dict):
             if account == 'Total':
                 continue
-            acc_str = colored(account, color)
+            acc_str = (
+                account
+                if self.no_color else
+                colored(account, color)
+            )
             if self.time:
                 amount = helper.colorAmount(
-                    self.time, helper.toTime(amounts_dict[account])
+                    self.time, helper.toTime(amounts_dict[account]),
+                    self.no_color
                 )
             else:
                 amount = helper.colorAmount(
-                    self.time, amounts_dict[account]
+                    self.time, amounts_dict[account], self.no_color
                 )
             output += [[acc_str, amount]]
         total = self.prepareTableTotal(amounts_dict)
-        output += [[
-            colored('--- Total', color),
-            helper.colorAmount(self.time, total)
-        ]]
+        if self.no_color:
+            output += [[
+                '--- Total',
+                helper.colorAmount(self.time, total, self.no_color)
+            ]]
+        else:
+            output += [[
+                colored('--- Total', color),
+                helper.colorAmount(self.time, total, self.no_color)
+            ]]
         return output
 
     def prepareTableTotal(self, amounts_dict):

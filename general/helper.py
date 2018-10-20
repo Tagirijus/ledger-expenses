@@ -2,8 +2,10 @@ from decimal import Decimal
 from termcolor import colored
 
 
-def colorAmount(time, amount):
+def colorAmount(time, amount, no_color):
     """Depending on negative or positive, color the amount."""
+    if no_color:
+        return str(amount)
     if time:
         return colored(str(amount), 'green')
     else:

@@ -113,6 +113,13 @@ class Settings(object):
             help='if enabled, the amount will be interpreted as a time value'
         )
 
+        self.args.add_argument(
+            '-nc',
+            '--no-color',
+            action='store_true',
+            help='if enabled, the output will have no color'
+        )
+
         self.args = self.args.parse_args()
 
     def toJson(self, indent=2, ensure_ascii=False):
