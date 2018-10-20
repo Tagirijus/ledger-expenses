@@ -130,7 +130,7 @@ class Expenses(object):
         """Gets the MONEY amount of the given account."""
         ledger_file = ledger_helper.prepareLedgerFile(self.ledger_file)
         ledger_date = ledger_helper.prepareLedgerDate(self.period, self.months)
-        ledger_command = 'ledger {}{} --collapse b "{}"'.format(
+        ledger_command = 'ledger {}{} --collapse b {}'.format(
             ledger_file, ledger_date, account
         )
         result = helper.prepareMoneyAmount(os.popen(ledger_command).readline().strip())

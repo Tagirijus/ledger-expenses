@@ -35,7 +35,10 @@ class Settings(object):
             default=[],
             nargs=2,
             action='append',
-            help='append ledger account and its name to the expense accounts array'
+            help=(
+                'append ledger account and its name to the expense accounts array, '
+                'while one account with a space should be with a single quote!'
+            )
         )
 
         self.args.add_argument(
@@ -44,7 +47,10 @@ class Settings(object):
             default=[],
             nargs=2,
             action='append',
-            help='append ledger account and its name to the income accounts array'
+            help=(
+                'append ledger account and its name to the income accounts array, '
+                'while one account with a space should be with a single quote!'
+            )
         )
 
         self.args.add_argument(
