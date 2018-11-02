@@ -35,6 +35,7 @@ def getCorrectAccountName(accounts_name_dict, account):
 def prepareMoneyAmount(amount_str):
     """Convert the given ledger output amount string to a decimal."""
     try:
+        amount_str = amount_str[-1].strip()
         amount_str = amount_str[2:]
         amount_str = amount_str[:amount_str.find(' ')]
         amount_str = amount_str.replace('.', '').replace(',', '.')
