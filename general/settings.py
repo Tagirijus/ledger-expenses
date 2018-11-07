@@ -120,6 +120,13 @@ class Settings(object):
             help='if enabled, the output will have no color'
         )
 
+        self.args.add_argument(
+            '-nt',
+            '--no-total',
+            action='store_true',
+            help='if enabled, the output will have no total calculation'
+        )
+
         self.args = self.args.parse_args()
 
     def toJson(self, indent=2, ensure_ascii=False):
