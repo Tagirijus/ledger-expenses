@@ -2,6 +2,10 @@
 
 The changelog format follows these rules: [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and sticks to [semantic versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.0.6] - 2018-11-07
+### Fix
+- Sometimes I hate git.
+
 ## [0.0.5] - 2018-11-07
 ### Added
 - `-nt` as parameter for no total calculation in the output.
