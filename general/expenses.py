@@ -23,7 +23,8 @@ class Expenses(object):
         period_from=False,
         period_to=False,
         time=False,
-        no_color=False
+        no_color=False,
+        no_total=False
     ):
         self.ledger_file = ledger_file
         self.months = months
@@ -31,6 +32,7 @@ class Expenses(object):
         self.yearly = yearly
         self.time = time
         self.no_color = no_color
+        self.no_total = no_total
 
         self.income_accounts, self.income_accounts_name = (
             self.interpreteAccounts(income_accounts)
@@ -203,7 +205,7 @@ class Expenses(object):
         if len(self.expense_accounts) > 0:
             print()
             self.printAmounts('Expense accounts', self.expense_amounts, 'yellow', color)
-        if not self.time:
+        if not self.time and not self.no_total:
             print()
             print()
             self.printBoth(color)
@@ -265,17 +267,8 @@ class Expenses(object):
                     self.time, amounts_dict[account], self.no_color
                 )
             output += [[acc_str, amount]]
-        total = self.prepareTableTotal(amounts_dict)
-        if self.no_color:
-            output += [[
-                '--- Total',
-                helper.colorAmount(self.time, total, self.no_color)
-            ]]
-        else:
-            output += [[
-                colored('--- Total', color),
-                helper.colorAmount(self.time, total, self.no_color)
-            ]]
+        if not self.no_total:
+            output = self.prepareTotal(amounts_dict, output, color)
         return output
 
     def prepareTableTotal(self, amounts_dict):
@@ -289,3 +282,17 @@ class Expenses(object):
             total = helper.toTime(total)
 
         return total
+
+    def prepareTotal(self, amounts_dict, output, color):
+        total = self.prepareTableTotal(amounts_dict)
+        if self.no_color:
+            output += [[
+                '--- Total',
+                helper.colorAmount(self.time, total, self.no_color)
+            ]]
+        else:
+            output += [[
+                colored('--- Total', color),
+                helper.colorAmount(self.time, total, self.no_color)
+            ]]
+        return output
