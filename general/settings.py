@@ -33,7 +33,7 @@ class Settings(object):
             '-e',
             '--expense',
             default=[],
-            nargs=2,
+            nargs='+',
             action='append',
             help=(
                 'append ledger account and its name to the expense accounts array, '
@@ -45,7 +45,7 @@ class Settings(object):
             '-i',
             '--income',
             default=[],
-            nargs=2,
+            nargs='+',
             action='append',
             help=(
                 'append ledger account and its name to the income accounts array, '

@@ -79,7 +79,10 @@ class Expenses(object):
         name = {}
         for account in accounts:
             acc += [account[0]]
-            name[account[0]] = account[1]
+            if len(account) < 2:
+                name[account[0]] = account[0]
+            else:
+                name[account[0]] = account[1]
         return (acc, name)
 
     def getAmounts(self):
